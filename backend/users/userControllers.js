@@ -1,11 +1,11 @@
-var userService = require('./userService');
+var userServices = require('./userServices');
 
 var createUserControllerFn = async (req, res) => 
 {
     try
     {
     console.log(req.body);
-    var status = await userService.createUserDBService(req.body);
+    var status = await userServices.createUserDBService(req.body);
     console.log(status);
 
     if (status) {
@@ -23,7 +23,7 @@ catch(err)
 var loginUserControllerFn = async (req, res) => {
     var result = null;
     try {
-        result = await userService.loginuserDBService(req.body);
+        result = await userServices.loginuserDBService(req.body);
         if (result.status) {
             res.send({ "status": true, "message": result.msg });
         } else {

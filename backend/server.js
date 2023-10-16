@@ -22,3 +22,7 @@ mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
 
 app.use(express.json());
 app.use(routes);
+
+app.get('/', (req, res) => {
+  res.send('Server Running');
+});

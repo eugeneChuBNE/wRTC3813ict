@@ -1,66 +1,59 @@
-var userModel = require('./userModel');
-var key = 'aRandomStr';
+var userModels = require('./userModels');
+var key = 'aRandomStringAndItNeedsToBeLonger';
 var encryptor = require('simple-encryptor')(key);
 
+// Create a new user in the database
 module.exports.createUserDBService = (userDetails) => {
-
-
-   return new Promise(function myFn(resolve, reject) {
-
-       var userModelData = new userModel();
-
-       userModelData.name = userDetails.name;
-       userModelData.email = userDetails.email;
-       userModelData.password = userDetails.password;
-       var encrypted = encryptor.encrypt(userDetails.password);
-       userModelData.password = encrypted;
-
-       userModelData.save(function resultHandle(error, result) {
-
-           if (error) {
-               reject(false);
-           } else {
-               resolve(true);
-           }
+   return new Promise(async (resolve, reject) => {
+       // Preparing user data for storage, including encrypting the password
+       var userModelsData = new userModels({
+           name: userDetails.name,
+           email: userDetails.email,
+           password: encryptor.encrypt(userDetails.password)  // Encrypt pwd
        });
 
-   });
+       try {
+           // Attempt to save the new user to the database
+           await userModelsData.save();
+           resolve(true);  // Resolve the promise positively if successful
+       } catch (error) {
+           console.error(error); // Log any error for debugging purposes
 
+           // Check if the error is due to a duplicate key (i.e., email)
+           if (error.code === 11000) {
+               reject({ status: false, msg: "Email already exists" }); // Return message 
+           } else {
+               reject({ status: false, msg: "An error occurred during registration" }); // General error message
+           }
+       }
+   });
 }
 
-module.exports.loginuserDBService = (userDetails)=> 
-{
-   return new Promise(function myFn(resolve, reject) 
-   {
-      userModel.findOne({ email: userDetails.email},function getresult(errorvalue, result)
-      {
-         if(errorvalue)
-         {
-            reject({status: false, msg: "Invaild Data"});
-         }
-         else
-         {
-            if(result !=undefined &&  result !=null)
-            {
-               var decrypted = encryptor.decrypt(result.password);
+//  authenticate a user during login
+module.exports.loginuserDBService = (userDetails) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            // Attempt to find the user by email
+            const user = await userModels.findOne({ email: userDetails.email });
 
-               if(decrypted== userDetails.password)
-               {
-                  resolve({status: true,msg: "user validated successfully"});
-               }
-               else
-               {
-                  reject({status: false,msg: "user validated failed"});
-               }
-            }
-            else
-            {
-               reject({status: false,msg: "user details unavailable"});
+            // If no user is found, reject the promise with a message
+            if (!user) {
+                reject({ status: false, msg: "user details unavailable" });
+                return;
             }
 
-         }
-      
-      });
-      
-   });
+            // Decrypt the stored password for comparison
+            var decrypted = encryptor.decrypt(user.password);
+
+            // Check if the provided password matches the stored password
+            if (decrypted === userDetails.password) {
+                resolve({ status: true, msg: "user validated successfully" }); // Positive response if passwords match
+            } else {
+                reject({ status: false, msg: "user validated failed" }); // Negative response if passwords don't match
+            }
+        } catch (error) {
+            console.error(error); // Log any error for debugging purposes
+            reject({ status: false, msg: "Invalid Data" }); // General failure, possibly due to database issues
+        }
+    });
 }
