@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service'; // Make sure to import your AuthService
 
 @Component({
   selector: 'app-login',
@@ -8,40 +8,35 @@ import { Router } from '@angular/router';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-
   email: string = '';
   password: string = '';
+  errorMessage: string = '';
 
-  isLogin: boolean = true;
-  erroMessage: string = "";
+  constructor(private router: Router, private authService: AuthService) {} // Inject AuthService
 
-  constructor(private router: Router,private http: HttpClient) {}
+  login(): void {
+    console.log(this.email, this.password);
 
-  login() {
-    console.log(this.email);
-    console.log(this.password);
-
-    let bodyData = {
+    const bodyData = {
       email: this.email,
       password: this.password,
     };
 
-        this.http.post("http://localhost:3000/user/login", bodyData).subscribe(  (resultData: any) => {
-        console.log(resultData);
-
-        if (resultData.status) 
-        {
-      
-           this.router.navigateByUrl('/home');
-    
-
-        } 
-        else
-         {
-          alert("Incorrect email/password");
-          console.log("Error login");
+    this.authService.login(bodyData).subscribe(
+      res => {
+        console.log(res);
+        if (res.status) {
+          this.authService.setLoginStatus(true); // Update the login status upon successful login
+          this.router.navigateByUrl('/home');
+        } else {
+          this.errorMessage = "Incorrect email/password"; // In case of failed login attempt
+          console.log("Error logging in");
         }
-      });
-    }
-
+      },
+      error => {
+        console.error(error);
+        this.errorMessage = "An error occurred during login.";
+      }
+    );
+  }
 }

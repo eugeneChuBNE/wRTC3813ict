@@ -1,5 +1,6 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service'; // Ensure this path is correct based on your folder structure
 
 @Component({
   selector: 'app-register',
@@ -7,50 +8,35 @@ import { Component } from '@angular/core';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
+  name: string = '';
+  email: string = '';
+  password: string = '';
+  errorMessage: string = '';
 
-  name: string = ""; 
-  email: string = ""; 
-  password: string = "";
-
-  constructor(private http: HttpClient) { } 
-
-  ngOnInit(): void { 
-  }
+  constructor(private router: Router, private authService: AuthService) {} // Inject AuthService here
 
   register(): void {
-    // Prepare the user data to send to the server.
-    let bodyData = {
-      "name": this.name,
-      "email": this.email,
-      "password": this.password,
-      // "role": this.role  
+    const newUser = {
+      name: this.name,
+      email: this.email,
+      password: this.password
     };
-    
-    // Make a POST request to the server to create a new user.
-    this.http.post("http://localhost:3000/user/register", bodyData).subscribe(
-      (resultData: any) => {
-        console.log(resultData);
-        alert("User Registered Successfully"); // Alert the user of successful registration.
-      },
-      (error: HttpErrorResponse) => { // Catch and log any errors from the server.
-        console.error("There was an error!", error);
-        
-        // Check if the server sent a custom error message
-        if (error.error && error.error.msg) {
-          // Server returned a custom error message.
-          alert(`An error occurred: ${error.error.msg}`);
-        } else if (error.error instanceof ErrorEvent) {
-          // A client-side or network error occurred. Handle it accordingly.
-          alert(`An error occurred: ${error.error.message}`);
+
+    this.authService.register(newUser).subscribe(
+      res => {
+        console.log(res);
+        if (res.status) {
+          // Navigate to login page or any other page after successful registration
+          this.router.navigateByUrl('/login'); // or '/home' if you want to redirect the user to home page after registration
         } else {
-          // The backend returned an unsuccessful response code.
-          alert(`Backend returned code ${error.status}, ${error.error}`);
+          this.errorMessage = "Error registering"; // Customize your error message here
+          console.log("Error during registration");
         }
+      },
+      error => {
+        console.error(error);
+        this.errorMessage = "An error occurred during registration.";
       }
     );
-  }
-
-  save(): void {
-    this.register(); // Attempt to register the user.
   }
 }
