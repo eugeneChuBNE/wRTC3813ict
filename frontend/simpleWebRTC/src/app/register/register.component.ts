@@ -26,10 +26,25 @@ export class RegisterComponent {
       res => {
         console.log(res);
         if (res.status) {
-          // Navigate to login page or any other page after successful registration
-          this.router.navigateByUrl('/login'); // or '/home' if you want to redirect the user to home page after registration
+          // User successfully registered, now log them in
+          this.authService.login(newUser).subscribe(
+            loginRes => {
+              console.log(loginRes);
+              if (loginRes.status) {
+                this.authService.setLoginStatus(true);
+                this.router.navigateByUrl('/dashboard');
+              } else {
+                this.errorMessage = "Error logging in after registration"; 
+                console.log("Error during login after registration");
+              }
+            },
+            loginError => {
+              console.error(loginError);
+              this.errorMessage = "An error occurred during login after registration.";
+            }
+          );
         } else {
-          this.errorMessage = "Error registering"; // Customize your error message here
+          this.errorMessage = "Error registering"; 
           console.log("Error during registration");
         }
       },

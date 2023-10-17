@@ -1,19 +1,26 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Routes } from '@angular/router'; // Make sure to import RouterModule
+import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
 import { RegisterComponent } from './register/register.component';
+import { DashboardComponent } from './dashboard/dashboard.component'; 
+import { AuthGuard } from './auth.guard';
+
 
 const routes: Routes = [
   {
-    path: '', component: LoginComponent,
+    path: '', component: HomeComponent, // HomeComponent is now the default route
   },
   {
-    path: 'home', component: HomeComponent,
+    path: 'login', component: LoginComponent, // adjusted path
   },
   {
-    path: 'register', component: RegisterComponent,
+    path: 'register', component: RegisterComponent, // adjusted path
+  },
+  {
+    path: 'dashboard', component: DashboardComponent, // new route for DashboardComponent
+    canActivate: [AuthGuard]
   },
 ];
 
@@ -21,8 +28,8 @@ const routes: Routes = [
   declarations: [],
   imports: [
     CommonModule,
-    RouterModule.forRoot(routes), // Add this line to import your routes
+    RouterModule.forRoot(routes),
   ],
-  exports: [RouterModule], // And this line to make router directives available for use in the AppModule components
+  exports: [RouterModule],
 })
 export class AppRoutingModule {}

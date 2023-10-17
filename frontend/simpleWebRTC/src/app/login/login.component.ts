@@ -27,7 +27,7 @@ export class LoginComponent {
         console.log(res);
         if (res.status) {
           this.authService.setLoginStatus(true); // Update the login status upon successful login
-          this.router.navigateByUrl('/home');
+          this.router.navigateByUrl('/dashboard');
         } else {
           this.errorMessage = "Incorrect email/password"; // In case of failed login attempt
           console.log("Error logging in");
