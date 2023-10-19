@@ -1,6 +1,6 @@
-import {Component, OnInit} from '@angular/core';
-import {Emitters} from '../emitters/emitters';
-import {HttpClient} from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../services/auth.service'; // Adjust the path if your service is in a different location
 
 @Component({
   selector: 'app-navbar',
@@ -12,27 +12,31 @@ export class NavbarComponent implements OnInit {
   user_name = '';
   user_role = '';
 
-  constructor(private http: HttpClient) {
-  }
+  constructor(
+    private authService: AuthService, // injected AuthService
+    private http: HttpClient
+  ) {}
 
   ngOnInit(): void {
-    Emitters.authEmitter.subscribe(
-      (auth: boolean) => {
-        this.authenticated = auth;
+    // Subscribe to the currentUser observable from AuthService
+    this.authService.currentUser.subscribe(user => {
+      this.authenticated = !!user; // Convert user to a boolean to indicate authentication status
+
+      if (user) {
+        this.user_name = user.username;
+        this.user_role = user.role;
+      } else {
+        this.user_name = '';
+        this.user_role = '';
       }
-    );
-    this.http.get('http://localhost:3000/api/user', {withCredentials: true}).subscribe(
-      (res: any) => {
-        this.user_name = res.username;
-        this.user_role = res.role;        
-      }
-    );
+    });
   }
 
   logout(): void {
-    this.http.post('http://localhost:3000/api/logout', {}, {withCredentials: true})
-      .subscribe(() => this.authenticated = false);
-      localStorage.removeItem('user');
+    // Simply call the logout method from AuthService
+    this.authService.logout();
+    localStorage.removeItem('currentUser');
+    console.log("User logged out successfully.");
+    this.authenticated = false; // Update the state locally, or better, rely on the subscription to currentUser from AuthService
   }
-
 }
