@@ -23,7 +23,7 @@ export class NavbarComponent implements OnInit {
     );
     this.http.get('http://localhost:3000/api/user', {withCredentials: true}).subscribe(
       (res: any) => {
-        this.user_name = res.name;
+        this.user_name = res.username;
         this.user_role = res.role;        
       }
     );
@@ -32,6 +32,7 @@ export class NavbarComponent implements OnInit {
   logout(): void {
     this.http.post('http://localhost:3000/api/logout', {}, {withCredentials: true})
       .subscribe(() => this.authenticated = false);
+      localStorage.removeItem('user');
   }
 
 }

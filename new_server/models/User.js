@@ -2,24 +2,30 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var userSchema = new Schema({
-    name: {
+    username: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     email: {
         type: String,
         required: true,
-        unique: true // Ensure emails are unique 
+        unique: true 
     },
-    password: {
+    password: { 
         type: String,
         required: true
     },
-    role: {
+    role: [{
         type: String,
-        enum: ['admin', 'mod', 'user'], 
-        default: 'user' 
-    }
-});
+        enum: ['admin', 'mod', 'user'],
+        default: 'user'
+    }],
+    groups: [{ 
+        type: Schema.Types.ObjectId, 
+        ref: 'Group' 
+    }]
+}, { timestamps: true });
+
 
 module.exports = mongoose.model('User', userSchema);

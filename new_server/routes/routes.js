@@ -2,43 +2,16 @@ const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Group = require('../models/Group');
+const Channel = require('../models/Channel');
 
-// Use an environment variable for the secret key
-const jwtSecret = process.env.JWT_SECRET || 'secret'; // Make sure to set this in your environment
-
-// Middleware for role-based access control
-// This function returns a middleware function tailored for a specific role
-// that checks the user's role before allowing them to continue
-function requireRole(role) {
-    return async (req, res, next) => {
-        try {
-            const token = req.cookies['jwt'];
-            if (!token) throw new Error('No token provided');
-
-            const decoded = jwt.verify(token, jwtSecret);
-            const user = await User.findById(decoded._id);
-            if (!user) throw new Error('User not found');
-
-            // Check if user role matches the required role
-            if (user.role !== role) {
-                return res.status(403).send({ message: 'Forbidden, incorrect role' });
-            }
-            
-            // Store user in the request
-            req.user = user;
-            next();
-        } catch (error) {
-            return res.status(401).send({ message: 'Unauthorized, invalid token' });
-        }
-    };
-}
+const jwtSecret = 'secret'; 
 
 // Registration route
 router.post('/register', async (req, res) => {
     try {
-        // Input validation would go here...
 
-        const { name, email, password, role } = req.body;
+        const { username, email, password, role } = req.body;
         
         // Check if a user with the same email already exists
         const existingUser = await User.findOne({ email });
@@ -52,7 +25,7 @@ router.post('/register', async (req, res) => {
 
         // Creating new user instance. Assign a role if provided, otherwise default to 'user'
         const user = new User({
-            name,
+            username,
             email,
             password: hashedPassword,
             role: 'user', // default role
@@ -72,7 +45,6 @@ router.post('/register', async (req, res) => {
 // Login route
 router.post('/login', async (req, res) => {
     try {
-        // Input validation would go here...
 
         const { email, password } = req.body;
         const user = await User.findOne({ email });
@@ -98,6 +70,7 @@ router.post('/login', async (req, res) => {
 
         res.send({ message: 'Success' });
     } catch (error) {
+        console.error(error);
         res.status(500).send({ message: error.message });
     }
 });
@@ -129,12 +102,6 @@ router.post('/logout', (req, res) => {
     // Clear the JWT token from the cookie
     res.cookie('jwt', '', { maxAge: 0 });
     res.send({ message: 'Successfully logged out' });
-});
-
-// Example of a route that requires a user to be an admin
-router.get('/admin-route', requireRole('admin'), (req, res) => {
-    // If middleware doesn't send a response, the user has the correct role
-    res.send('Welcome, admin!');
 });
 
 // Export the router to be used in server.js

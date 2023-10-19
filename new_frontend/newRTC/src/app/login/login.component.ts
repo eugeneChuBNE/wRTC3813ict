@@ -26,10 +26,19 @@ export class LoginComponent implements OnInit {
   }
 
   submit(): void {
-    console.log(this.form.getRawValue())
-    console.log("user created")
     this.http.post('http://localhost:3000/api/login', this.form.getRawValue(), {
       withCredentials: true
-    }).subscribe(() => this.router.navigate(['/']));
-  }
+    }).subscribe(
+      (res: any) => {
+        console.log("User logged in", res);
+        // Assuming the response contains your token or user object
+        localStorage.setItem('user', JSON.stringify(res)); // Storing the whole response
+        this.router.navigate(['/promote-user']);
+      },
+      err => {
+        console.error("Login error", err);
+        // Handle your error response here
+      }
+    );
+}
 }

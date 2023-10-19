@@ -9,6 +9,11 @@ mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
     .catch((err) => console.log(err));
 
 const routes = require('./routes/routes')
+const adminRoutes = require('./routes/adminRoutes');
+const adminModRoutes = require('./routes/adminModRoutes');
+const userRoutes = require('./routes/userRoutes');
+const chatRoutes = require('./routes/chatRoutes');
+
 
 app = express()
 
@@ -21,5 +26,9 @@ app.use(cors({
 app.use(express.json())
 
 app.use('/api', routes)
+app.use('/api', adminModRoutes);
+app.use('/api', adminRoutes);
+app.use('/api', userRoutes);
+app.use('/api', chatRoutes);
 
 app.listen(3000)
