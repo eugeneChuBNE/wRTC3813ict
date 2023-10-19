@@ -9,6 +9,7 @@ import {Emitters} from '../emitters/emitters';
 })
 export class HomeComponent implements OnInit {
   message = '';
+  hasUser = false;
 
   constructor(
     private http: HttpClient
@@ -20,6 +21,7 @@ export class HomeComponent implements OnInit {
       (res: any) => {
         this.message = `Hi ${res.name} ${res.role}`;
         Emitters.authEmitter.emit(true);
+        this.hasUser = true;
       },
       err => {
         this.message = 'You are not logged in';

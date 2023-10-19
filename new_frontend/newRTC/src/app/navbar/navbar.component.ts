@@ -9,6 +9,8 @@ import {HttpClient} from '@angular/common/http';
 })
 export class NavbarComponent implements OnInit {
   authenticated = false;
+  user_name = '';
+  user_role = '';
 
   constructor(private http: HttpClient) {
   }
@@ -17,6 +19,12 @@ export class NavbarComponent implements OnInit {
     Emitters.authEmitter.subscribe(
       (auth: boolean) => {
         this.authenticated = auth;
+      }
+    );
+    this.http.get('http://localhost:3000/api/user', {withCredentials: true}).subscribe(
+      (res: any) => {
+        this.user_name = res.name;
+        this.user_role = res.role;        
       }
     );
   }
