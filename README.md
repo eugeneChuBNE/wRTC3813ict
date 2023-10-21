@@ -273,4 +273,6 @@ Angular provides a powerful routing mechanism that allows us to navigate between
 
 ## Interaction Between Client and Server
 
+Client side will collect data from both users and server via requests (req) and responses (res). For this project, I chose jwt (jsonwebtoken) and mixed-use between cookies and sessions, so that the authentications and authorizations are quite safe and every functions work as (mostly) expected.
+
 ...
