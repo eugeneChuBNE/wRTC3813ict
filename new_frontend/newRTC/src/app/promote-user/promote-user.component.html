@@ -1,21 +1,31 @@
 <div class="form-promote-user w-50 m-auto">
   <form [formGroup]="form" (submit)="submit()">
     <h1 class="h1 mb-3 fw-normal">Promote User</h1>
-  
+
     <!-- Dropdown to select user -->
     <select formControlName="userId" class="form-control mb-3" required>
       <option value="" disabled>Select User</option>
       <!-- Loop over the users array to display each user -->
       <option *ngFor="let user of users" [value]="user._id">{{user.username}}</option>
     </select>
-  
+
     <!-- Dropdown to select role -->
     <select formControlName="role" class="form-control mb-3" required>
       <option value="" disabled>Select Role</option>
       <option value="admin">Admin</option>
       <option value="mod">Moderator</option>
     </select>
-  
+
+    <!-- List of groups -->
+    <div *ngIf="showGroups">
+      <h3>Select Groups</h3>
+      <div *ngFor="let group of groups">
+        <label>
+          <input type="checkbox" [value]="group._id" (change)="onGroupSelect($event, group._id)" [disabled]="isUserModOfGroup(group._id)"> {{group.name}}
+        </label>
+      </div>
+    </div>
+
     <button class="w-100 btn btn-lg btn-primary mb-3" type="submit">Promote</button>
   </form>
 </div>
