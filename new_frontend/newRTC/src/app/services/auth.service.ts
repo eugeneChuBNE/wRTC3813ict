@@ -26,9 +26,7 @@ export class AuthService {
           // After a successful login, make another request to fetch the user's info
           return this.http.get('http://localhost:3000/api/user', {withCredentials: true});
         }),
-        tap(user => {
-          console.log('User data retrieved after login', user);
-  
+        tap(user => {  
           // store user details in local storage to keep user logged in between page refreshes
           localStorage.setItem('currentUser', JSON.stringify(user));
           this.currentUserSubject.next(user);
@@ -56,7 +54,7 @@ export class AuthService {
   }
   public getUserRole(): string | null {
     const currentUser = this.currentUserValue; // this gets the current user
-    console.log(currentUser)
+    console.log("Current user: ", currentUser)
     return currentUser?.role || null; // this returns the user's role or null if there's no logged-in user
   }
   

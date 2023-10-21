@@ -6,7 +6,9 @@ const Group = require('../models/Group');
 const Channel = require('../models/Channel');
 const Request = require('../models/Request');
 
-const { requireRole, requireModWithRestrictions } = require('../middleware/auth');
+const { requireRole, requireModWithRestrictions, requireAuth } = require('../middleware/auth');
+
+//======================== GROUP =================================
 
 // Create a group (Only an admin or mod can do)
 router.post('/groups', requireRole('mod'), async (req, res) => {
@@ -18,6 +20,23 @@ router.post('/groups', requireRole('mod'), async (req, res) => {
         });
         await group.save();
         res.send({ message: 'Group created successfully', group });
+    } catch (error) {
+        res.status(500).send({ message: error.message });
+    }
+});
+
+// Retrieve all users (members) in a group
+router.get('/groups/:groupId/members', async (req, res) => {
+    try {
+        const group = await Group.findById(req.params.groupId);
+        if (!group) {
+            return res.status(404).send({ message: 'Group not found' });
+        }
+
+        // Fetch the user details for the members of the group
+        const members = await User.find({ _id: { $in: group.members } });
+
+        res.send({ members });
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
@@ -54,6 +73,46 @@ router.delete('/groups/:groupId', requireModWithRestrictions(), async (req, res)
     }
 });
 
+// Remove a user from a group (and associated channels)
+router.delete('/groups/:groupId/users/:userId', requireModWithRestrictions(), async (req, res) => {
+    try {
+        const group = await Group.findById(req.params.groupId);
+        if (!group) {
+            return res.status(404).send({ message: 'Group not found' });
+        }
+
+        // Check if the current user is a mod of the group
+        if (!group.mods.includes(req.user._id)) {
+            return res.status(403).send({ message: 'You do not have permission to remove users from this group' });
+        }
+
+        // Check if the user to be removed exists in the group
+        if (!group.members.includes(req.params.userId)) {
+            return res.status(404).send({ message: 'User not found in this group' });
+        }
+
+        // Remove the user from the group
+        group.members.pull(req.params.userId);
+
+        // Remove the user from the channels within this group
+        const channels = await Channel.find({ group: group._id });
+        for (const channel of channels) {
+            if (channel.members.includes(req.params.userId)) {
+                channel.members.pull(req.params.userId);
+                await channel.save();
+            }
+        }
+
+        await group.save();
+
+        res.send({ message: 'User removed from the group and associated channels successfully' });
+    } catch (error) {
+        res.status(500).send({ message: error.message });
+    }
+});
+
+
+//============================ CHANNEL ==============================
 // Create a channel within a group (Only a mod or admin of the group can do this)
 router.post('/groups/:groupId/channels', requireModWithRestrictions(), async (req, res) => {
     try {
@@ -115,34 +174,53 @@ router.delete('/groups/:groupId/channels/:channelId', requireModWithRestrictions
     }
 });
 
-
-// Remove users from a group (Only a mod or admin of the group can do this)
-router.delete('/groups/:groupId/users/:userId', requireModWithRestrictions(), async (req, res) => {
+// Remove a user from a channel (Only a mod or admin of the channel can do this)
+router.delete('/groups/:groupId/channels/:channelId/members/:userId', requireModWithRestrictions(), async (req, res) => {
     try {
-        const group = await Group.findById(req.params.groupId);
-        if (!group) {
-            return res.status(404).send({ message: 'Group not found' });
+        const channel = await Channel.findById(req.params.channelId);
+        if (!channel) {
+            return res.status(404).send({ message: 'Channel not found' });
         }
 
-        // Check if the current user is a mod of the group
-        if (!group.mods.includes(req.user._id)) {
-            return res.status(403).send({ message: 'You do not have permission to remove users from this group' });
+        // Check if the current user is a mod of the channel or an admin
+        if (!(channel.mods.includes(req.user._id) || req.user.role.includes('admin'))) {
+            return res.status(403).send({ message: 'You do not have permission to remove users from this channel' });
         }
 
-        // Check if the user to be removed exists in the group
-        if (!group.members.includes(req.params.userId)) {
-            return res.status(404).send({ message: 'User not found in this group' });
+        // Check if the user to be removed exists in the channel
+        if (!channel.members.includes(req.params.userId)) {
+            return res.status(404).send({ message: 'User not found in this channel' });
         }
 
-        // Remove the user from the group
-        group.members.pull(req.params.userId);
-        await group.save();
+        // Remove the user from the channel
+        channel.members.pull(req.params.userId);
+        await channel.save();
 
-        res.send({ message: 'User removed from the group successfully' });
+        res.send({ message: 'User removed from the channel successfully' });
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
 });
+
+
+// Retrieve all users (members) in a channel
+router.get('/groups/:groupId/channels/:channelId/members', async (req, res) => {
+    try {
+        const channel = await Channel.findById(req.params.channelId);
+        if (!channel) {
+            return res.status(404).send({ message: 'Channel not found' });
+        }
+
+        // Fetch the user details for the members of the channel
+        const members = await User.find({ _id: { $in: channel.members } });
+
+        res.send({ members });
+    } catch (error) {
+        res.status(500).send({ message: error.message });
+    }
+});
+
+//============================= REQUEST ==============================
 
 // Retrieve all join requests (admin can view all, mods only for their groups)
 router.get('/join-requests', requireRole('mod'), async (req, res) => {

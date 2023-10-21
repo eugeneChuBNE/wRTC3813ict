@@ -30,3 +30,37 @@
         </tbody>
     </table>
 </div>
+
+<div class="container" *ngIf="group">
+    <!-- Display Member List -->
+    <div *ngIf="members.length > 0">
+        <h2>Members:</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngFor="let member of members">
+                    <tr>
+                        <td>{{ member._id }}</td>
+                        <td>{{ member.username }}</td>
+                        <td>{{ member.email }}</td>
+                        <td>{{ getMemberRole(member) }}</td>
+                        <td>
+                            <button class="btn btn-danger" (click)="removeUser(member._id)">Remove</button>
+                        </td>
+                    </tr>
+                </ng-container>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+

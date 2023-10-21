@@ -16,8 +16,8 @@
         <td>{{ group.name }}</td>
         <td>
           <!-- Show join or view button based on the group's status -->
-          <button *ngIf="!group.members.includes(currentUserId)" class="btn btn-primary" (click)="requestToJoinGroup(group._id)">Request to Join</button>
-          <button *ngIf="group.members.includes(currentUserId)" class="btn btn-success mr-2" (click)="navigateToGroupChannels(group._id)">View</button>
+          <button *ngIf="!group.members.includes(currentUserId) && !isAdmin" class="btn btn-primary" (click)="requestToJoinGroup(group._id)">Request to Join</button>
+          <button *ngIf="group.members.includes(currentUserId) || isAdmin" class="btn btn-success mr-2" (click)="navigateToGroupChannels(group._id)">View</button>
 
           <!-- Show delete button if user is admin or if user is a mod and in the mods list of the group -->
           <button *ngIf="shouldShowDeleteButton(group)" class="btn btn-danger" (click)="deleteGroup(group._id)">Delete</button>

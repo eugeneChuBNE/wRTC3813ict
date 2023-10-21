@@ -29,15 +29,13 @@ router.get('/groups/:groupId/', requireGroupMember(), async (req, res) => {
             return res.status(404).json({ message: 'Group not found' });
         }
 
-        // Check if the user is a member of the group (this check is somewhat redundant because the middleware already performs it,
-        // but it's left here in case you want additional processing or error messaging)
+        // Check if the user is a member of the group,
         if (!group.members.includes(req.user._id)) {
             if(!req.user.role.includes('admin')){
                 return res.status(403).json({ message: 'Forbidden, you are not a member of this group' });
 
             }
         }
-
         // If the user is a member, then return the channels
         return res.status(200).json(group);
     } catch (error) {
@@ -54,7 +52,7 @@ router.get('/channels/:channelId/messages', requireAuth, async (req, res) => {
 
         // Ensure the user is a member of the channel, or a mod/admin
         const userIsMember = channel.members.includes(req.user._id);
-        const userIsMod = channel.group.mods.includes(req.user._id); // You might need to populate `group` field or make an additional query to get the group
+        const userIsMod = channel.group.mods.includes(req.user._id); 
         const userIsAdmin = req.user.role === 'admin';
 
         if (!userIsMember && !userIsMod && !userIsAdmin) {

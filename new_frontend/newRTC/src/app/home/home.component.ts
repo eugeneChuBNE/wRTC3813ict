@@ -12,6 +12,7 @@ export class HomeComponent implements OnInit {
   groups: any[] = [];
   isLoggedIn = false;
   isAdminOrMod = false;
+  isAdmin = false;
   newGroupName: string = '';
   currentUserId: string | null = null;
   userRole: string | null = null;
@@ -33,6 +34,8 @@ export class HomeComponent implements OnInit {
       this.userRole = this.authService.getUserRole();
       if (this.userRole) {
         this.isAdminOrMod = this.userRole.includes('admin') || this.userRole.includes('mod');
+        this.isAdmin = this.userRole.includes('admin');
+
       }
       this.fetchGroups();
     }
