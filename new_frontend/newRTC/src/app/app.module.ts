@@ -13,6 +13,7 @@ import { NavbarComponent } from './navbar/navbar.component';
 import { PromoteUserComponent } from './promote-user/promote-user.component';
 import { GroupChannelsComponent } from './group-channels/group-channels.component';
 import { RequestsComponent } from './requests/requests.component';
+import { UserListComponent } from './user-list/user-list.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { RequestsComponent } from './requests/requests.component';
     PromoteUserComponent,
     GroupChannelsComponent,
     RequestsComponent,
+    UserListComponent,
   ],
   imports: [
     BrowserModule,

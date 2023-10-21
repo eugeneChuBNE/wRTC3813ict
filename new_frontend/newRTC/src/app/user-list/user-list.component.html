@@ -1,0 +1,28 @@
+<div *ngIf="isAdmin; else unauthorized">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{user._id}}</td>
+          <td>{{user.username}}</td>
+          <td>{{user.email}}</td>
+          <td>{{user.role}}</td>
+          <td>
+            <button class="btn btn-danger" (click)="deleteUser(user._id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+</div>
+<ng-template #unauthorized>
+    <!-- Content for non-admin users -->
+    <div>You are not authorized to view this content.</div>
+</ng-template>

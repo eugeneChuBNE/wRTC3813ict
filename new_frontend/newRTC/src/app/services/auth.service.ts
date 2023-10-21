@@ -36,7 +36,6 @@ export class AuthService {
       );
   }
   
-
   logout(): Observable<any> {
     console.log('logout');
     localStorage.removeItem('currentUser');
@@ -60,4 +59,5 @@ export class AuthService {
     console.log(currentUser)
     return currentUser?.role || null; // this returns the user's role or null if there's no logged-in user
   }
+  
 }
