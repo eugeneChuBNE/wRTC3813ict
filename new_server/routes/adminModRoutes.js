@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Group = require('../models/Group');
 const Channel = require('../models/Channel');
+const Request = require('../models/Request');
+
 const { requireRole, requireModWithRestrictions } = require('../middleware/auth');
 
 // Create a group (Only an admin or mod can do)
@@ -147,41 +149,66 @@ router.delete('/groups/:groupId/users/:userId', requireModWithRestrictions(), as
 // Retrieve all join requests (admin can view all, mods only for their groups)
 router.get('/join-requests', requireRole('mod'), async (req, res) => {
     try {
-        const requests = await Request.find({})
-            .populate('user', 'username')
-            .populate('group', 'name');
+        let groupQuery = {};
+        if (req.user.role.includes('mod')) {
+            // If the user is a mod, we'll change our query to look for groups where they're a moderator.
+            groupQuery = { mods: req.user._id };
+        }
+
+        // Fetch the groups where the current user is a mod.
+        const modGroups = await Group.find(groupQuery, '_id');
+
+        // Extract the group IDs from the query result.
+        const groupIds = modGroups.map(group => group._id);
+
+        // Now, find the requests that belong to these groups.
+        const requests = await Request.find({ 'group': { $in: groupIds } })
+            .populate('user', 'username email _id')
+            .populate('group', 'name _id');
+
         res.send({ requests });
     } catch (error) {
+        console.error('Error fetching requests:', error); // Log any errors
         res.status(500).send({ message: error.message });
     }
 });
 
+
 // Approve or decline join request
-router.post('/join-requests/:requestId', requireModWithRestrictions(), async (req, res) => {
+router.post('/join-requests/:requestId', requireRole('mod'), async (req, res) => {
     try {
-        const joinRequest = await Request.findById(req.params.requestId)
-            .populate('group');
+        const requestId = req.params.requestId;
+
+        // get the join request
+        const joinRequest = await Request.findById(requestId).populate('group');
         if (!joinRequest) {
             return res.status(404).send({ message: 'Request not found' });
         }
 
-        // If the user is a mod but not for this group, they can't approve/decline the request
-        if (req.user.role === 'mod' && !joinRequest.group.mods.includes(req.user._id)) {
-            return res.status(403).send({ message: 'You do not have permission to manage this request' });
+        // check if they're a mod for this group.
+        if (req.user.role.includes('mod')) {
+            const group = await Group.findOne({ _id: joinRequest.group._id, mods: req.user._id });
+            if (!group) {
+                return res.status(403).send({ message: 'You do not have permission to manage this request' });
+            }
         }
 
+        // Handle the approval or decline
         if (req.body.action === 'approve') {
+            // Add the user to the group's members
             joinRequest.group.members.push(joinRequest.user);
             await joinRequest.group.save();
         }
 
-        // Delete the request after approval/decline
-        await joinRequest.remove();
+        // Regardless of approve/decline, remove the request
+        await Request.deleteOne({ _id: requestId });
 
         res.send({ message: `Request has been ${req.body.action}d successfully` });
     } catch (error) {
+        console.error('Error join request:', error);
         res.status(500).send({ message: error.message });
     }
 });
+
 
 module.exports = router;
