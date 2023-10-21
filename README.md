@@ -1,4 +1,4 @@
-# MEAN Stack Project Documentation
+# WebRTC simulation for 3813ICT
 
 ## Git Repository Organization
 
