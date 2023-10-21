@@ -10,6 +10,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
 import { NavbarComponent } from './navbar/navbar.component';
 import { PromoteUserComponent } from './promote-user/promote-user.component';
+import { GroupChannelsComponent } from './group-channels/group-channels.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { PromoteUserComponent } from './promote-user/promote-user.component';
     LoginComponent,
     HomeComponent,
     NavbarComponent,
-    PromoteUserComponent
+    PromoteUserComponent,
+    GroupChannelsComponent,
   ],
   imports: [
     BrowserModule,

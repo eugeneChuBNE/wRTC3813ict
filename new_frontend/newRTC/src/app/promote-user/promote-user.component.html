@@ -1,9 +1,8 @@
 <div class="form-promote-user w-50 m-auto">
   <form [formGroup]="form" (submit)="submit()">
-    <h1 class="h3 mb-3 fw-normal">Promote User</h1>
+    <h1 class="h1 mb-3 fw-normal">Promote User</h1>
   
     <!-- Dropdown to select user -->
-    
     <select formControlName="userId" class="form-control mb-3" required>
       <option value="" disabled>Select User</option>
       <!-- Loop over the users array to display each user -->

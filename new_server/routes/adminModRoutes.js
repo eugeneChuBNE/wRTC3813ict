@@ -7,7 +7,7 @@ const Channel = require('../models/Channel');
 const { requireRole, requireModWithRestrictions } = require('../middleware/auth');
 
 // Create a group (Only an admin or mod can do)
-router.post('/groups', requireModWithRestrictions(), async (req, res) => {
+router.post('/groups', requireRole('mod'), async (req, res) => {
     try {
         const group = new Group({
             name: req.body.name,
@@ -16,6 +16,39 @@ router.post('/groups', requireModWithRestrictions(), async (req, res) => {
         });
         await group.save();
         res.send({ message: 'Group created successfully', group });
+    } catch (error) {
+        res.status(500).send({ message: error.message });
+    }
+});
+
+// Delete a group (Only an admin or mod of the group can do this)
+router.delete('/groups/:groupId', requireModWithRestrictions(), async (req, res) => {
+    try {
+        const group = await Group.findById(req.params.groupId);
+        if (!group) {
+            return res.status(404).send({ message: 'Group not found' });
+        }
+
+        // If the user is an admin, they can delete any group
+        // If the user is a mod, they must be a mod of this specific group to delete it
+        const userIsModOfGroup = group.mods.includes(req.user._id);
+        if (req.user.role.includes('admin') || (req.user.role.includes('mod') && userIsModOfGroup)) {
+            
+            // Find all channels that belong to this group
+            const channels = await Channel.find({ group: group._id });
+
+            // Delete all channels associated with this group
+            for (const channel of channels) {
+                await channel.deleteOne();
+            }
+
+            // Now that all channels have been deleted, delete the group itself
+            await group.deleteOne();
+
+            res.send({ message: 'Group and its channels deleted successfully' });
+        } else {
+            return res.status(403).send({ message: 'You do not have permission to delete this group' });
+        }
     } catch (error) {
         res.status(500).send({ message: error.message });
     }
@@ -30,7 +63,9 @@ router.post('/groups/:groupId/channels', requireModWithRestrictions(), async (re
         }
 
         // Check if the current user is a mod of the group
-        if (!group.mods.includes(req.user._id)) {
+        
+        if (!group.mods.includes(req.user._id) && !req.user.role.includes('admin')) {
+            console.log(!req.user.role.includes('admin'));
             return res.status(403).send({ message: 'You do not have permission to create a channel in this group' });
         }
 
@@ -48,6 +83,38 @@ router.post('/groups/:groupId/channels', requireModWithRestrictions(), async (re
         res.status(500).send({ message: error.message });
     }
 });
+
+// Delete a channel within a group (Only an admin or mod of the group can do this)
+router.delete('/groups/:groupId/channels/:channelId', requireModWithRestrictions(), async (req, res) => {
+    try {
+        const group = await Group.findById(req.params.groupId);
+        if (!group) {
+            return res.status(404).send({ message: 'Group not found' });
+        }
+
+        // Check if the current user is a mod of the group
+        if (!group.mods.includes(req.user._id) && !req.user.role.includes('admin')) {
+            return res.status(403).send({ message: 'You do not have permission to delete channels in this group' });
+        }
+
+        const channel = await Channel.findById(req.params.channelId);
+        if (!channel) {
+            return res.status(404).send({ message: 'Channel not found' });
+        }
+
+        // Delete the channel
+        await channel.deleteOne();
+
+        // Remove the channel from the group's channels list
+        group.channels.pull(channel._id);
+        await group.save();
+
+        res.send({ message: 'Channel deleted successfully' });
+    } catch (error) {
+        res.status(500).send({ message: error.message });
+    }
+});
+
 
 // Remove users from a group (Only a mod or admin of the group can do this)
 router.delete('/groups/:groupId/users/:userId', requireModWithRestrictions(), async (req, res) => {

@@ -55,4 +55,9 @@ export class AuthService {
       this.currentUserSubject.next(JSON.parse(currentUser));
     }
   }
+  public getUserRole(): string | null {
+    const currentUser = this.currentUserValue; // this gets the current user
+    console.log(currentUser)
+    return currentUser?.role || null; // this returns the user's role or null if there's no logged-in user
+  }
 }

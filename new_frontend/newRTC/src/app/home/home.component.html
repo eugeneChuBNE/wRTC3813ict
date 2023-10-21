@@ -1,0 +1,56 @@
+<div class="container" *ngIf="isLoggedIn; else pleaseLogin">
+    <!-- Display message if exists -->
+    <div *ngIf="message" class="alert alert-info">
+      {{ message }}
+    </div>
+    <a routerLink="/join-requests">View Join Requests</a>
+
+  
+    <h2>List of Groups</h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Group Name</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Iterate over the groups and display each one -->
+        <tr *ngFor="let group of groups">
+          <td>{{ group.name }}</td>
+          <td>
+            <!-- Use the pre-calculated property instead of method -->
+            <ng-container *ngIf="group.shouldShowJoin; else viewGroup">
+              <button class="btn btn-primary" (click)="requestToJoinGroup(group._id)">Request to Join</button>
+            </ng-container>
+            <ng-template #viewGroup>
+              <button class="btn btn-success mr-2" (click)="navigateToGroupChannels(group._id)">View</button>
+            </ng-template>
+  
+            <!-- Show delete button if user is admin/mod or a mod of the group -->
+            <button *ngIf="isAdminOrMod || group.isUserAMod" 
+                    class="btn btn-danger" 
+                    (click)="deleteGroup(group._id)">
+              Delete
+            </button>
+          </td>
+        </tr>
+        <!-- Input for creating a new group -->
+        <tr *ngIf="isAdminOrMod">
+          <td>
+            <input type="text" class="form-control" [(ngModel)]="newGroupName" placeholder="Enter new group name">
+          </td>
+          <td>
+            <button class="btn btn-primary" (click)="createGroupInline()">Create a new group</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Message for users who are not logged in -->
+  <ng-template #pleaseLogin>
+    <div class="alert alert-warning mt-3">
+      Please log in or register first.
+    </div>
+  </ng-template>

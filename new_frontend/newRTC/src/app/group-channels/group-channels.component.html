@@ -1,0 +1,32 @@
+<div class="container" *ngIf="group">
+    <h2>Channels in {{ group.name }}</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Channel Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let channel of group.channels">
+                <td>{{ channel.name }}</td>
+                <td>
+                    <button class="btn btn-danger" 
+                            (click)="deleteChannel(channel._id)"
+                            *ngIf="isAdmin || isMod">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+            <!-- New Row for creating channel -->
+            <tr *ngIf="isAdmin || isMod">
+                <td>
+                    <input type="text" class="form-control" [(ngModel)]="newChannelName" placeholder="Enter new channel name">
+                </td>
+                <td>
+                    <button class="btn btn-primary" (click)="createChannelInline()">Create a new channel</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

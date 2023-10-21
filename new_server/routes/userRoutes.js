@@ -2,30 +2,9 @@ const router = require('express').Router();
 const User = require('../models/User');
 const Group = require('../models/Group');
 const Channel = require('../models/Channel');
+const Request = require('../models/Request');
+
 const { requireAuth } = require('../middleware/auth');
-
-// Users register an interest in a group (Any authenticated user can do this)
-router.post('/groups/:groupId/register-interest', requireAuth, async (req, res) => {
-    try {
-        // Find the group with the specified ID
-        const group = await Group.findById(req.params.groupId);
-        if (!group) {
-            return res.status(404).send({ message: 'Group not found' });
-        }
-
-        // Check if the user has already registered interest
-        if (group.interestedUsers.includes(req.user._id)) {
-            return res.status(400).send({ message: 'already registered interest in this group' });
-        }
-
-        // Add the user's ID to the interestedUsers array
-        group.interestedUsers.push(req.user._id);
-        await group.save();
-        res.send({ message: 'successfully registered interest in this group' });
-    } catch (error) {
-        res.status(500).send({ message: error.message });
-    }
-});
 
 // Users leave a group (Any authenticated user can do this)
 router.post('/groups/:groupId/leave', requireAuth, async (req, res) => {
@@ -126,6 +105,7 @@ router.post('/groups/:groupId/requests', requireAuth, async (req, res) => {
 
         res.send({ message: 'Request to join group submitted successfully' });
     } catch (error) {
+        console.error(error);
         res.status(500).send({ message: error.message });
     }
 });
