@@ -44,46 +44,6 @@ router.delete('/users/me', requireAuth, async (req, res) => {
     }
 });
 
-// Users join a channel in a group (Any group member can do this)
-router.post('/groups/:groupId/channels/:channelId/join', requireAuth, async (req, res) => {
-    try {
-        // Find the group with the specified ID
-        const group = await Group.findById(req.params.groupId);
-        if (!group) {
-            return res.status(404).send({ message: 'Group not found' });
-        }
-
-        // Check if the user is a member of the group
-        if (!group.members.includes(req.user._id)) {
-            return res.status(403).send({ message: ' must be a member of the group to join its channels' });
-        }
-
-        // Find the channel with the specified ID
-        const channel = await Channel.findById(req.params.channelId);
-        if (!channel) {
-            return res.status(404).send({ message: 'Channel not found' });
-        }
-
-        // Check if the channel belongs to the group
-        if (channel.group.toString() !== req.params.groupId) {
-            return res.status(403).send({ message: 'Channel does not belong to the specified group' });
-        }
-
-        // Check if the user is already a member of the channel
-        if (channel.members.includes(req.user._id)) {
-            return res.status(400).send({ message: 'already a member of this channel' });
-        }
-
-        // Add the user to the channel's members and save
-        channel.members.push(req.user._id);
-        await channel.save();
-
-        res.send({ message: 'successfully joined the channel' });
-    } catch (error) {
-        res.status(500).send({ message: error.message });
-    }
-});
-
 // Users submit a request to join a group
 router.post('/groups/:groupId/requests', requireAuth, async (req, res) => {
     try {
