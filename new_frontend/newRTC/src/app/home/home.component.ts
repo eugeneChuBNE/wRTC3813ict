@@ -30,10 +30,9 @@ export class HomeComponent implements OnInit {
 
     if (this.isLoggedIn && currentUser) {
       this.currentUserId = currentUser._id;
-      const role = this.authService.getUserRole();
-      this.userRole = role;
-      if (role) {
-        this.isAdminOrMod = role.includes('admin') || role.includes('mod');
+      this.userRole = this.authService.getUserRole();
+      if (this.userRole) {
+        this.isAdminOrMod = this.userRole.includes('admin') || this.userRole.includes('mod');
       }
       this.fetchGroups();
     }
@@ -43,14 +42,10 @@ export class HomeComponent implements OnInit {
     this.http.get('http://localhost:3000/api/groups', { withCredentials: true })
       .subscribe(
         (res: any) => {
-          this.groups = res.map((group: any) => {
-            const shouldShowJoin = this.calculateShouldShowJoinButton(group);
-            return {
-              ...group,
-              shouldShowJoin,
-              isUserAMod: group.mods.includes(this.currentUserId),
-            };
-          });
+          this.groups = res.map((group: any) => ({
+            ...group,
+            isUserAMod: group.mods.includes(this.currentUserId),
+          }));
         },
         err => {
           this.message = 'There was an error fetching the groups: ' + err.message;
@@ -58,21 +53,11 @@ export class HomeComponent implements OnInit {
       );
   }
 
-  calculateShouldShowJoinButton(group: any): boolean {
-    if (!this.isLoggedIn || !this.currentUserId || !this.userRole) {
-      return false; // Not logged in, no user ID, or no user role, so don't show
-    }
-  
-    const isMember = group.members.includes(this.currentUserId);
-    const isAdmin = this.userRole.includes('admin');
-  
-    if (isAdmin || isMember) {
-      return false;
-    }
-  
-    return true; // User is not a member and not a mod/admin, so they should see the "Join" button
+  shouldShowDeleteButton(group: any): boolean {
+    const isAdmin = this.userRole?.includes('admin');
+    const isModOfGroup = this.userRole?.includes('mod') && group.mods.includes(this.currentUserId);
+    return isAdmin || isModOfGroup;
   }
-  
 
   navigateToGroupChannels(groupId: string): void {
     this.router.navigate([`/group/${groupId}/channels`]);

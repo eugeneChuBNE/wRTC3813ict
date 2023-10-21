@@ -36,15 +36,13 @@ router.delete('/groups/:groupId', requireModWithRestrictions(), async (req, res)
         const userIsModOfGroup = group.mods.includes(req.user._id);
         if (req.user.role.includes('admin') || (req.user.role.includes('mod') && userIsModOfGroup)) {
             
-            // Find all channels that belong to this group
+            // find and delete all channels that belong to this group
             const channels = await Channel.find({ group: group._id });
-
-            // Delete all channels associated with this group
             for (const channel of channels) {
                 await channel.deleteOne();
             }
 
-            // Now that all channels have been deleted, delete the group itself
+            // thendelete the group itself
             await group.deleteOne();
 
             res.send({ message: 'Group and its channels deleted successfully' });
