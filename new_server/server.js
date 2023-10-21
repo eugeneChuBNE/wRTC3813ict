@@ -44,6 +44,6 @@ app.use('/api/chat', chatRoutes);
 // Require the socket.js file and pass the io instance to it
 require('./socket')(io);
 
-server.listen(3000, () => {
+app.listen(3000, () => {
     console.log('Server is running on port 3000');
 });
