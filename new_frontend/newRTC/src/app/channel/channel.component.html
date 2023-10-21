@@ -1,0 +1,18 @@
+<div class="container">
+    <h2>Channel Information</h2>
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>Channel Name:</td>
+                <td>{{ channel.name }}</td>
+            </tr>
+            <!-- Add more properties of the channel as needed -->
+        </tbody>
+    </table>
+    <h2>Members in this Channel</h2>
+    <ul>
+        <li *ngFor="let member of members">
+            {{ member.username }} ({{ member.email }})
+        </li>
+    </ul>
+</div>

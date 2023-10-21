@@ -8,7 +8,7 @@ const User = require('../models/User');
 
 
 // Route to retrieve all groups - accessible to everyone
-router.get('/groups', async (req, res) => {
+router.get('/groups',requireAuth, async (req, res) => {
     try {
         const groups = await Group.find({});
         return res.status(200).json(groups);
@@ -16,6 +16,23 @@ router.get('/groups', async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 });
+
+// Route to retrieve all groups of a user
+router.get('/my-groups', requireAuth, async (req, res) => {
+    try {
+        // req.user should have the user's information, including their ID, thanks to the requireAuth middleware.
+        const userId = req.user._id;
+
+        // Find all groups where this user is a member. This assumes that the 'members' field in the Group schema contains user IDs.
+        const groups = await Group.find({ members: userId });
+        
+        return res.status(200).json(groups);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: error.message });
+    }
+});
+
 
 // Route to retrieve channels of a group - accessible to all members of the group
 router.get('/groups/:groupId/', requireGroupMember(), async (req, res) => {

@@ -11,6 +11,7 @@
             <tr *ngFor="let channel of group.channels">
                 <td>{{ channel.name }}</td>
                 <td>
+                    <button *ngIf="canGoToChannel(currentUserId!)" class="btn btn-primary" (click)="navigateToChannel(channel._id)">Go</button>
                     <button class="btn btn-danger" 
                             (click)="deleteChannel(channel._id)"
                             *ngIf="isAdmin || isMod">

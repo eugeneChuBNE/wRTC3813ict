@@ -14,7 +14,6 @@ const adminModRoutes = require('./routes/adminModRoutes');
 const userRoutes = require('./routes/userRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 
-
 app = express()
 
 app.use(cookieParser())

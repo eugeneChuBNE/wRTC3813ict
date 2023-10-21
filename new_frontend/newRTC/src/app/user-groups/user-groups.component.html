@@ -1,0 +1,20 @@
+<div class="container mt-5">
+    <table class="table table-striped">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let group of groups">
+          <td>{{ group.name }}</td>
+          <td>
+            <button class="btn btn-primary me-2" (click)="viewGroup(group._id)">View</button>
+            <button class="btn btn-danger" *ngIf="canDelete(group)" (click)="deleteGroup(group._id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+</div>
+  

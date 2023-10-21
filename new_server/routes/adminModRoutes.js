@@ -131,6 +131,7 @@ router.post('/groups/:groupId/channels', requireModWithRestrictions(), async (re
         const channel = new Channel({
             name: req.body.name,
             group: group._id,
+            members: [req.user]
         });
         await channel.save();
 
@@ -202,6 +203,18 @@ router.delete('/groups/:groupId/channels/:channelId/members/:userId', requireMod
     }
 });
 
+// Retrieve a channel
+router.get('/groups/:groupId/channels/:channelId/', async (req, res) => {
+    try {
+        const channel = await Channel.findById(req.params.channelId);
+        if (!channel) {
+            return res.status(404).send({ message: 'Channel not found' });
+        }
+        res.send({ channel });
+    } catch (error) {
+        res.status(500).send({ message: error.message });
+    }
+});
 
 // Retrieve all users (members) in a channel
 router.get('/groups/:groupId/channels/:channelId/members', async (req, res) => {
@@ -210,7 +223,6 @@ router.get('/groups/:groupId/channels/:channelId/members', async (req, res) => {
         if (!channel) {
             return res.status(404).send({ message: 'Channel not found' });
         }
-
         // Fetch the user details for the members of the channel
         const members = await User.find({ _id: { $in: channel.members } });
 

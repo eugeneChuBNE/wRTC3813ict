@@ -14,6 +14,8 @@ import { PromoteUserComponent } from './promote-user/promote-user.component';
 import { GroupChannelsComponent } from './group-channels/group-channels.component';
 import { RequestsComponent } from './requests/requests.component';
 import { UserListComponent } from './user-list/user-list.component';
+import { ChannelComponent } from './channel/channel.component';
+import { UserGroupsComponent } from './user-groups/user-groups.component';
 
 @NgModule({
   declarations: [
@@ -26,6 +28,8 @@ import { UserListComponent } from './user-list/user-list.component';
     GroupChannelsComponent,
     RequestsComponent,
     UserListComponent,
+    ChannelComponent,
+    UserGroupsComponent,
   ],
   imports: [
     BrowserModule,

@@ -84,6 +84,22 @@ export class GroupChannelsComponent implements OnInit {
   navigateToCreateChannel(): void {
     this.router.navigate([`/group/${this.groupId}/create-channel`]);
   }
+  navigateToChannel(channelId: string): void {
+    this.router.navigate([`/group/${this.groupId}/channel/${channelId}`]);
+  }
+
+  canGoToChannel(memberId: string): boolean {
+    // Check if the member is in the channel's member list
+    const isMemberInChannel = this.group.channels.some((channel: any) => channel.members.includes(memberId));
+    
+    // Check if the current user is an admin or mod of the group
+    const isUserAdminOrMod = this.isAdmin || this.isMod;
+    
+    // Return true if any of the conditions are met
+    return isMemberInChannel || isUserAdminOrMod;
+  }
+
+
   getMemberRole(member: any): string {
     if (this.isAdmin || this.isMod) {
         // If the current user is an admin or mod of the group,
@@ -98,7 +114,6 @@ export class GroupChannelsComponent implements OnInit {
         }
     }
   }
-
 
   deleteChannel(channelId: string): void {
     this.http.delete(`http://localhost:3000/api/groups/${this.groupId}/channels/${channelId}`, { withCredentials: true })
