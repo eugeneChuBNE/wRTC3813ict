@@ -7,6 +7,7 @@ import { PromoteUserComponent } from './promote-user/promote-user.component';
 import { ReactiveFormsModule } from '@angular/forms'; 
 import { BrowserModule } from '@angular/platform-browser';
 import { GroupChannelsComponent } from './group-channels/group-channels.component';
+import { RequestsComponent } from './requests/requests.component';
 
 const routes: Routes = [
   {path:"", component: HomeComponent},
@@ -14,6 +15,7 @@ const routes: Routes = [
   {path:"register", component: RegisterComponent},
   { path: 'promote-user', component: PromoteUserComponent },
   { path: 'group/:groupId/channels', component: GroupChannelsComponent },
+  { path: 'requests', component: RequestsComponent },
 ];
 
 @NgModule({

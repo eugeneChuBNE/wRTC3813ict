@@ -1,5 +1,6 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
+import { RequestService } from './services/request.service';
 
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
@@ -11,6 +12,7 @@ import {HttpClientModule} from '@angular/common/http';
 import { NavbarComponent } from './navbar/navbar.component';
 import { PromoteUserComponent } from './promote-user/promote-user.component';
 import { GroupChannelsComponent } from './group-channels/group-channels.component';
+import { RequestsComponent } from './requests/requests.component';
 
 @NgModule({
   declarations: [
@@ -21,6 +23,7 @@ import { GroupChannelsComponent } from './group-channels/group-channels.componen
     NavbarComponent,
     PromoteUserComponent,
     GroupChannelsComponent,
+    RequestsComponent,
   ],
   imports: [
     BrowserModule,
@@ -29,7 +32,7 @@ import { GroupChannelsComponent } from './group-channels/group-channels.componen
     ReactiveFormsModule,
     HttpClientModule
   ],
-  providers: [],
+  providers: [RequestService],
   bootstrap: [AppComponent]
 })
 export class AppModule {
