@@ -3,6 +3,8 @@ const Channel = require('./models/Channel');
 module.exports = (io) => {
     io.on('connection', (socket) => {
         console.log('User connected:', socket.id);
+        socket.emit('message', { content: 'Hello from server!' });
+
 
         socket.on('join channel', async (channelId) => {
             try {
@@ -24,20 +26,20 @@ module.exports = (io) => {
             }
         });
 
-        socket.on('chat message', async (data) => {
+        socket.on('message', async (data) => {
             const { content, channelId, sender, role, image } = data;
+            console.log("Received data:", data);
             try {
                 const channel = await Channel.findById(channelId);
 
                 if (!channel) {
+                    console.log("Trying to find channel with ID:", channelId);
                     return console.error('Channel not found');
                 }
 
                 const message = {
                     sender,
-                    role,
                     content,
-                    image,
                     createdAt: new Date(),
                     updatedAt: new Date(),
                 };
@@ -45,7 +47,10 @@ module.exports = (io) => {
                 channel.messages.push(message);
                 await channel.save();
 
-                io.to(channelId).emit('chat message', message);
+                io.to(channelId).emit('message', message);
+                console.log("channelId",channelId)
+
+                console.log("Received chat message:", data);
 
             } catch (error) {
                 console.error('Error sending message:', error);

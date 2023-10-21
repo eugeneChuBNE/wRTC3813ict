@@ -30,7 +30,6 @@ var channelSchema = new Schema({
         // Role of the user, useful for frontend display purposes.
         role: { 
             type: String, 
-            required: true // The role needs to be specified for potential frontend styling based on role.
         },
         // Text content of the message.
         content: { 

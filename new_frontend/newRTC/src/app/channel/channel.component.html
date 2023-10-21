@@ -9,10 +9,23 @@
             <!-- Add more properties of the channel as needed -->
         </tbody>
     </table>
+    
     <h2>Members in this Channel</h2>
     <ul>
         <li *ngFor="let member of members">
             {{ member.username }} ({{ member.email }})
         </li>
     </ul>
+    
+    <h2>Channel Messages</h2>
+    <div *ngFor="let message of channel.messages">
+        <strong>{{ message.sender.username }} ({{ message.role }}):</strong>
+        <p>{{ message.content }}</p>
+        <img *ngIf="message.image" [src]="message.image" alt="Message image" width="200px">
+    </div>
+
+    <h3>Send a Message:</h3>
+    <textarea [(ngModel)]="newMessage.content" placeholder="Enter your message here"></textarea>
+    <br>
+    <button (click)="sendMessage()">Send</button>
 </div>
